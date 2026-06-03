@@ -11,12 +11,13 @@ type CollectionItem = {
   source?: string | null
   description?: string | null
   created_at: string
+  ai_response?: string | null
 }
 
 export default async function Home() {
   const { data: items, error } = await supabase
     .from('collection_items')
-    .select('id, image_url, image_path, source, description, created_at')
+    .select('id, image_url, image_path, source, description, ai_response, created_at')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -71,6 +72,10 @@ export default async function Home() {
 
               <p className="mt-2">
                 {item.description || 'Captured from Spectacles'}
+              </p>
+              
+              <p className="mt-3 text-sm text-neutral-300">
+                {item.ai_response}
               </p>
             </div>
           </article>

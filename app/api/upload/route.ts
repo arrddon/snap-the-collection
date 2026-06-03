@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { imageBase64, source } = body
+    const { imageBase64, source, aiResponse} = body
 
     if (!imageBase64) {
       return NextResponse.json({ error: 'imageBase64 is required' }, { status: 400 })
@@ -29,13 +29,14 @@ export async function POST(req: Request) {
     const imageUrl = data.publicUrl
 
     const { error: insertError } = await supabaseAdmin
-      .from('collection_items')
-      .insert({
+        .from('collection_items')
+        .insert({
         image_url: imageUrl,
         image_path: filePath,
         source: source || 'spectacles',
         description: 'Captured from Spectacles',
-      })
+        ai_response: aiResponse || null,
+        })
 
     if (insertError) {
       return NextResponse.json({ error: insertError.message }, { status: 500 })
