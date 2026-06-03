@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 export async function POST(req: Request) {
   try {
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const imageBuffer = Buffer.from(imageBase64, 'base64')
     const filePath = `captures/${Date.now()}.jpg`
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabaseAdmin.storage
       .from(bucket)
       .upload(filePath, imageBuffer, {
         contentType: 'image/jpeg',
@@ -25,10 +25,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: uploadError.message }, { status: 500 })
     }
 
-    const { data } = supabase.storage.from(bucket).getPublicUrl(filePath)
+    const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(filePath)
     const imageUrl = data.publicUrl
 
-    const { error: insertError } = await supabase
+    const { error: insertError } = await supabaseAdmin
       .from('collection_items')
       .insert({
         image_url: imageUrl,
