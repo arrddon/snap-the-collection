@@ -7,10 +7,7 @@ export async function POST(req: Request) {
     const { imageBase64, source } = body
 
     if (!imageBase64) {
-      return NextResponse.json(
-        { error: 'imageBase64 is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'imageBase64 is required' }, { status: 400 })
     }
 
     const bucket = process.env.SUPABASE_BUCKET || 'snap-collection-images'
@@ -25,17 +22,11 @@ export async function POST(req: Request) {
       })
 
     if (uploadError) {
-      return NextResponse.json(
-        { error: uploadError.message },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: uploadError.message }, { status: 500 })
     }
 
-    const { data: publicUrlData } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(filePath)
-
-    const imageUrl = publicUrlData.publicUrl
+    const { data } = supabase.storage.from(bucket).getPublicUrl(filePath)
+    const imageUrl = data.publicUrl
 
     const { error: insertError } = await supabase
       .from('collection_items')
@@ -47,10 +38,7 @@ export async function POST(req: Request) {
       })
 
     if (insertError) {
-      return NextResponse.json(
-        { error: insertError.message },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
 
     return NextResponse.json({
@@ -59,9 +47,6 @@ export async function POST(req: Request) {
       imagePath: filePath,
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: String(error) },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: String(error) }, { status: 500 })
   }
 }
