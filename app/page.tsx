@@ -62,11 +62,8 @@ export default async function Home() {
 
       <header className="archive-header">
         <div>
-          <p className="eyebrow">Participatory AR Archive</p>
           <h1>The Collection</h1>
-          <p className="intro">
-            Captured fragments drift through a living storage layer.
-          </p>
+
         </div>
 
         <div className="archive-status">
@@ -74,13 +71,6 @@ export default async function Home() {
           <p>fragments</p>
         </div>
       </header>
-
-      <section className="storage-map">
-        <div className="map-line" />
-        <p>CAPTURE</p>
-        <p>COLLECT</p>
-        <p>RE-PLACE</p>
-      </section>
 
       <section className="fragment-field">
         {collectionItems.map((item, index) => {
