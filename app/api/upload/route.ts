@@ -1,10 +1,19 @@
+// app/api/upload/route.ts
+
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { imageBase64, source, aiResponse} = body
+
+    const {
+      imageBase64,
+      source,
+      description,
+      keywords,
+      aiResponse,
+    } = body
 
     if (!imageBase64) {
       return NextResponse.json({ error: 'imageBase64 is required' }, { status: 400 })
@@ -28,15 +37,18 @@ export async function POST(req: Request) {
     const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(filePath)
     const imageUrl = data.publicUrl
 
+    const cleanKeywords = Array.isArray(keywords) ? keywords.slice(0, 5) : []
+
     const { error: insertError } = await supabaseAdmin
-        .from('collection_items')
-        .insert({
+      .from('collection_items')
+      .insert({
         image_url: imageUrl,
         image_path: filePath,
         source: source || 'spectacles',
-        description: 'Captured from Spectacles',
+        description: description || 'Captured from Spectacles',
         ai_response: aiResponse || null,
-        })
+        keywords: cleanKeywords,
+      })
 
     if (insertError) {
       return NextResponse.json({ error: insertError.message }, { status: 500 })
@@ -46,6 +58,8 @@ export async function POST(req: Request) {
       success: true,
       imageUrl,
       imagePath: filePath,
+      description: description || 'Captured from Spectacles',
+      keywords: cleanKeywords,
     })
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 })

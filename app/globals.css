@@ -1,26 +1,278 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #030403;
+  --foreground: #f4f4ef;
+  --muted: #7c817b;
+  --line: rgba(230, 255, 238, 0.13);
+  --green: #baffd7;
+  --cyan: #b9fff3;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.archive-page {
+  position: relative;
+  min-height: 100vh;
+  padding: 28px;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 16% 8%, rgba(178, 255, 215, 0.11), transparent 24%),
+    radial-gradient(circle at 86% 16%, rgba(180, 245, 255, 0.08), transparent 26%),
+    linear-gradient(180deg, #050605 0%, #020202 100%);
+}
+
+.archive-grid-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+.archive-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: var(--green);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.archive-header h1 {
+  margin: 0;
+  font-size: clamp(48px, 8vw, 118px);
+  line-height: 0.86;
+  letter-spacing: -0.08em;
+}
+
+.intro {
+  max-width: 520px;
+  margin: 20px 0 0;
+  color: #a9aea8;
+  font-size: 15px;
+}
+
+.archive-status {
+  text-align: right;
+  color: var(--muted);
+}
+
+.archive-status span {
+  display: block;
+  color: var(--foreground);
+  font-size: 56px;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+}
+
+.archive-status p {
+  margin: 8px 0 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.storage-map {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 28px 0 34px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+}
+
+.storage-map p {
+  margin: 0;
+}
+
+.map-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line);
+  z-index: -1;
+}
+
+.fragment-field {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+  padding-bottom: 80px;
+}
+
+.archive-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(13, 15, 13, 0.78);
+  backdrop-filter: blur(18px);
+  transform: translateY(calc(var(--depth) * 10px));
+  animation: floatFragment 7s ease-in-out infinite;
+  animation-delay: var(--delay);
+  transition:
+    transform 0.45s ease,
+    border-color 0.45s ease,
+    background 0.45s ease,
+    box-shadow 0.45s ease;
+}
+
+.archive-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(120deg, transparent 20%, rgba(188, 255, 225, 0.1), transparent 48%),
+    radial-gradient(circle at 80% 0%, rgba(184, 255, 243, 0.12), transparent 28%);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.archive-card:hover {
+  z-index: 5;
+  transform: translateY(-10px) scale(1.018);
+  border-color: rgba(186, 255, 215, 0.42);
+  background: rgba(18, 22, 19, 0.94);
+  box-shadow: 0 24px 80px rgba(170, 255, 220, 0.11);
+  animation-play-state: paused;
+}
+
+.archive-card:hover::before {
+  opacity: 1;
+}
+
+.image-frame {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #050505;
+  border-bottom: 1px solid var(--line);
+}
+
+.image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.75) contrast(1.08) brightness(0.9);
+  transition: transform 0.7s ease, filter 0.7s ease;
+}
+
+.archive-card:hover img {
+  transform: scale(1.065);
+  filter: saturate(1.05) contrast(1.12) brightness(1);
+}
+
+.card-info {
+  padding: 18px;
+}
+
+.card-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.card-topline p {
+  margin: 0;
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 18px 0 16px;
+}
+
+.keywords span {
+  padding: 6px 9px;
+  border: 1px solid rgba(186, 255, 215, 0.24);
+  border-radius: 999px;
+  background: rgba(186, 255, 215, 0.045);
+  color: var(--cyan);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.caption {
+  margin: 0;
+  color: #f1f4ed;
+  font-size: 16px;
+  line-height: 1.38;
+  letter-spacing: -0.015em;
+}
+
+.date {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@keyframes floatFragment {
+  0%, 100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -9px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .fragment-field {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .archive-page {
+    padding: 18px;
+  }
+
+  .archive-header {
+    display: block;
+  }
+
+  .archive-status {
+    margin-top: 28px;
+    text-align: left;
+  }
+
+  .fragment-field {
+    grid-template-columns: 1fr;
+  }
 }

@@ -1,4 +1,4 @@
-//app/page.tsx
+// app/page.tsx
 
 import { supabase } from '@/lib/supabase'
 
@@ -12,21 +12,44 @@ type CollectionItem = {
   description?: string | null
   created_at: string
   ai_response?: string | null
+  keywords?: string[] | null
+}
+
+function parseAI(item: CollectionItem) {
+  if (item.keywords && item.keywords.length > 0) {
+    return {
+      caption: item.description || 'Captured fragment',
+      keywords: item.keywords.slice(0, 5),
+    }
+  }
+
+  const raw = item.ai_response || ''
+
+  try {
+    const parsed = JSON.parse(raw)
+    return {
+      caption: parsed.description || item.description || 'Captured fragment',
+      keywords: Array.isArray(parsed.keywords) ? parsed.keywords.slice(0, 5) : [],
+    }
+  } catch {
+    return {
+      caption: item.description || item.ai_response || 'Captured fragment',
+      keywords: [],
+    }
+  }
 }
 
 export default async function Home() {
   const { data: items, error } = await supabase
     .from('collection_items')
-    .select('id, image_url, image_path, source, description, ai_response, created_at')
+    .select('id, image_url, image_path, source, description, ai_response, keywords, created_at')
     .order('created_at', { ascending: false })
 
   if (error) {
     return (
-      <main className="min-h-screen bg-black text-white p-8">
-        <h1 className="text-3xl font-bold">Supabase Error</h1>
-        <pre className="mt-4 whitespace-pre-wrap text-red-400">
-          {error.message}
-        </pre>
+      <main className="archive-page">
+        <h1>Supabase Error</h1>
+        <pre>{error.message}</pre>
       </main>
     )
   }
@@ -34,52 +57,75 @@ export default async function Home() {
   const collectionItems = (items || []) as CollectionItem[]
 
   return (
-    <main className="min-h-screen bg-black text-white p-8">
-      <header>
-        <h1 className="text-4xl font-bold">The Collection</h1>
-        <p className="mt-2 text-neutral-400">
-          Captured fragments from Spectacles.
-        </p>
-        <p className="mt-2 text-sm text-neutral-600">
-          {collectionItems.length} item(s) in the collection
-        </p>
+    <main className="archive-page">
+      <div className="archive-grid-bg" />
+
+      <header className="archive-header">
+        <div>
+          <p className="eyebrow">Participatory AR Archive</p>
+          <h1>The Collection</h1>
+          <p className="intro">
+            Captured fragments drift through a living storage layer.
+          </p>
+        </div>
+
+        <div className="archive-status">
+          <span>{collectionItems.length}</span>
+          <p>fragments</p>
+        </div>
       </header>
 
-      <section className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {collectionItems.length === 0 && (
-          <p className="text-neutral-500">No images yet.</p>
-        )}
+      <section className="storage-map">
+        <div className="map-line" />
+        <p>CAPTURE</p>
+        <p>COLLECT</p>
+        <p>RE-PLACE</p>
+      </section>
 
-        {collectionItems.map((item) => (
-          <article
-            key={item.id}
-            className="rounded-xl overflow-hidden border border-neutral-800 bg-neutral-900"
-          >
-            <img
-              src={item.image_url}
-              alt={item.description || 'Captured image'}
-              className="w-full aspect-square object-cover"
-            />
+      <section className="fragment-field">
+        {collectionItems.map((item, index) => {
+          const ai = parseAI(item)
 
-            <div className="p-4">
-              <p className="text-xs text-neutral-500 break-all">
-                {item.image_path}
-              </p>
+          return (
+            <article
+              key={item.id}
+              className="archive-card"
+              style={
+                {
+                  '--delay': `${(index % 12) * 0.22}s`,
+                  '--depth': `${index % 5}`,
+                } as React.CSSProperties
+              }
+            >
+              <div className="image-frame">
+                <img src={item.image_url} alt={ai.caption} />
+              </div>
 
-              <p className="mt-2 text-sm text-neutral-500">
-                {new Date(item.created_at).toLocaleString()}
-              </p>
+              <div className="card-info">
+                <div className="card-topline">
+                  <p>COL / {String(index + 1).padStart(4, '0')}</p>
+                  <p>{item.source || 'spectacles'}</p>
+                </div>
 
-              <p className="mt-2">
-                {item.description || 'Captured from Spectacles'}
-              </p>
-              
-              <p className="mt-3 text-sm text-neutral-300">
-                {item.ai_response}
-              </p>
-            </div>
-          </article>
-        ))}
+                <div className="keywords">
+                  {ai.keywords.length > 0 ? (
+                    ai.keywords.map((keyword: string) => (
+                      <span key={keyword}>{keyword}</span>
+                    ))
+                  ) : (
+                    <span>fragment</span>
+                  )}
+                </div>
+
+                <p className="caption">{ai.caption}</p>
+
+                <p className="date">
+                  {new Date(item.created_at).toLocaleString()}
+                </p>
+              </div>
+            </article>
+          )
+        })}
       </section>
     </main>
   )
