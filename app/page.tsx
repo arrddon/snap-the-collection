@@ -1,6 +1,7 @@
 // app/page.tsx
 
 import { supabase } from '@/lib/supabase'
+import CollectionStage, { type StageItem } from './CollectionStage'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,68 +56,20 @@ export default async function Home() {
   }
 
   const collectionItems = (items || []) as CollectionItem[]
+  const visibleItems = collectionItems.slice(0, 30)
+  const stageItems: StageItem[] = visibleItems.map((item, index) => {
+    const ai = parseAI(item)
 
-  return (
-    <main className="archive-page">
-      <div className="archive-grid-bg" />
+    return {
+      id: item.id,
+      number: `COL / ${String(index + 1).padStart(4, '0')}`,
+      imageUrl: item.image_url,
+      source: item.source || 'spectacles',
+      caption: ai.caption,
+      keywords: ai.keywords.length > 0 ? ai.keywords : ['fragment'],
+      createdAt: item.created_at,
+    }
+  })
 
-      <header className="archive-header">
-        <div>
-          <h1>The Collection</h1>
-
-        </div>
-
-        <div className="archive-status">
-          <span>{collectionItems.length}</span>
-          <p>fragments</p>
-        </div>
-      </header>
-
-      <section className="fragment-field">
-        {collectionItems.map((item, index) => {
-          const ai = parseAI(item)
-
-          return (
-            <article
-              key={item.id}
-              className="archive-card"
-              style={
-                {
-                  '--delay': `${(index % 12) * 0.22}s`,
-                  '--depth': `${index % 5}`,
-                } as React.CSSProperties
-              }
-            >
-              <div className="image-frame">
-                <img src={item.image_url} alt={ai.caption} />
-              </div>
-
-              <div className="card-info">
-                <div className="card-topline">
-                  <p>COL / {String(index + 1).padStart(4, '0')}</p>
-                  <p>{item.source || 'spectacles'}</p>
-                </div>
-
-                <div className="keywords">
-                  {ai.keywords.length > 0 ? (
-                    ai.keywords.map((keyword: string) => (
-                      <span key={keyword}>{keyword}</span>
-                    ))
-                  ) : (
-                    <span>fragment</span>
-                  )}
-                </div>
-
-                <p className="caption">{ai.caption}</p>
-
-                <p className="date">
-                  {new Date(item.created_at).toLocaleString()}
-                </p>
-              </div>
-            </article>
-          )
-        })}
-      </section>
-    </main>
-  )
+  return <CollectionStage items={stageItems} totalCount={collectionItems.length} />
 }
