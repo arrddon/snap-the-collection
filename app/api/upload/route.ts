@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(filePath)
     const imageUrl = data.publicUrl
 
-    const cleanKeywords = Array.isArray(keywords) ? keywords.slice(0, 5) : []
+    const cleanKeywords = Array.isArray(keywords) ? keywords.slice(0, 6) : []
 
     const { error: insertError } = await supabaseAdmin
       .from('collection_items')

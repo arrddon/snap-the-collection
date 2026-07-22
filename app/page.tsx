@@ -20,7 +20,7 @@ function parseAI(item: CollectionItem) {
   if (item.keywords && item.keywords.length > 0) {
     return {
       caption: item.description || 'Captured fragment',
-      keywords: item.keywords.slice(0, 5),
+      keywords: item.keywords.slice(0, 6),
     }
   }
 
@@ -30,7 +30,7 @@ function parseAI(item: CollectionItem) {
     const parsed = JSON.parse(raw)
     return {
       caption: parsed.description || item.description || 'Captured fragment',
-      keywords: Array.isArray(parsed.keywords) ? parsed.keywords.slice(0, 5) : [],
+      keywords: Array.isArray(parsed.keywords) ? parsed.keywords.slice(0, 6) : [],
     }
   } catch {
     return {
