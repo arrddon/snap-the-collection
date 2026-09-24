@@ -14,6 +14,7 @@ type CollectionItem = {
   created_at: string
   ai_response?: string | null
   keywords?: string[] | null
+  mission_text?: string | null
 }
 
 function parseAI(item: CollectionItem) {
@@ -43,7 +44,7 @@ function parseAI(item: CollectionItem) {
 export default async function Home() {
   const { data: items, error } = await supabase
     .from('collection_items')
-    .select('id, image_url, image_path, source, description, ai_response, keywords, created_at')
+    .select('*')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -66,6 +67,7 @@ export default async function Home() {
       imageUrl: item.image_url,
       source: item.source || 'spectacles',
       caption: ai.caption,
+      missionText: item.mission_text || null,
       keywords: ai.keywords.length > 0 ? ai.keywords : ['fragment'],
       createdAt: item.created_at,
     }

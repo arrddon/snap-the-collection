@@ -8,6 +8,7 @@ export type StageItem = {
   imageUrl: string
   source: string
   caption: string
+  missionText?: string | null
   keywords: string[]
   createdAt: string
 }
@@ -120,6 +121,7 @@ export default function CollectionStage({ items }: { items: StageItem[]; totalCo
                       fetchPriority={focused ? 'high' : 'low'}
                     />
                   </div>
+                  {item.missionText && <p className="mission-label">{item.missionText}</p>}
                   <h2>{item.caption}</h2>
                 </button>
 

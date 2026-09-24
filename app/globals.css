@@ -64,3 +64,5 @@ button { font: inherit; }
   .collection-world { transition-duration: .7s }
   .fragment, .image-card, .image-frame img { transition-duration: .2s }
 }
+
+.mission-label { margin: 14px 20px 0; font-size: 12px; line-height: 1.4; color: #56514c; overflow-wrap: anywhere; }
