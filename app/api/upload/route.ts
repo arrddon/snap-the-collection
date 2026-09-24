@@ -55,7 +55,7 @@ export async function POST(req: Request) {
 
     const cleanKeywords = Array.isArray(keywords) ? keywords.slice(0, 6) : []
 
-    const { error: insertError } = await supabaseAdmin
+    const { data: inserted, error: insertError } = await supabaseAdmin
       .from('collection_items')
       .insert({
         image_url: imageUrl,
@@ -66,6 +66,8 @@ export async function POST(req: Request) {
         keywords: cleanKeywords,
         ...(mission ? { mission_text: mission } : {}),
       })
+      .select('id')
+      .single()
 
     if (insertError) {
       return NextResponse.json({ error: insertError.message }, { status: 500 })
@@ -73,6 +75,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
+      id: inserted.id,
+      missionText: mission || null,
       imageUrl,
       imagePath: filePath,
       description: description || 'Captured from Spectacles',
