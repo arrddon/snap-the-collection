@@ -1,141 +1,64 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 export type StageItem = {
-  id: string
-  number: string
-  imageUrl: string
-  source: string
-  caption: string
-  missionText?: string | null
-  keywords: string[]
-  createdAt: string
+  id: string; number: string; imageUrl: string; source: string; caption: string
+  missionText?: string | null; keywords: string[]; createdAt: string
 }
 
-type Point = { x: number; y: number }
-
-const palette = ['ivory', 'aqua', 'peach', 'sage', 'lilac']
-
-function positionFor(index: number): Point {
-  const columns = 3
-  const row = Math.floor(index / columns)
-  const column = index % columns
-  return {
-    x: (column - 1) * 570 + (row % 2 ? 130 : 0),
-    y: (row - 1) * 470 + [30, -55, 40][column],
-  }
+function FragmentImage({ item, eager = false }: { item: StageItem; eager?: boolean }) {
+  const [failed, setFailed] = useState(false)
+  return failed ? <span className="image-unavailable">Image unavailable</span> : (
+    // External collection storage serves original transparent PNGs.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={item.imageUrl} alt={item.caption} loading={eager ? 'eager' : 'lazy'} onError={() => setFailed(true)} />
+  )
 }
 
-export default function CollectionStage({ items }: { items: StageItem[]; totalCount: number }) {
-  const [focusedId, setFocusedId] = useState<string | null>(items[0]?.id ?? null)
-  const [hoveredId, setHoveredId] = useState<string | null>(null)
-  const [isTravelling, setIsTravelling] = useState(false)
-  const travelTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const positions = useMemo(() => items.map((_, index) => positionFor(index)), [items])
-  const focusedIndex = Math.max(0, items.findIndex((item) => item.id === focusedId))
-  const focus = positions[focusedIndex] ?? { x: 0, y: 0 }
+export default function CollectionStage({ items, totalCount }: { items: StageItem[]; totalCount: number }) {
+  const [selected, setSelected] = useState(0)
+  const dialog = useRef<HTMLDialogElement>(null)
+  const active = items[selected]
+  const related = active ? items.map((item, index) => ({ item, index })).filter(({ item }) => item.id !== active.id && item.keywords.some(keyword => active.keywords.some(other => other.toLowerCase() === keyword.toLowerCase()))).slice(0, 3) : []
 
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setFocusedId(null)
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
-
-  useEffect(() => () => {
-    if (travelTimer.current) clearTimeout(travelTimer.current)
-  }, [])
-
-  function focusCard(id: string) {
-    if (id === focusedId) return
-    if (travelTimer.current) clearTimeout(travelTimer.current)
-    setIsTravelling(true)
-    setFocusedId(id)
-    travelTimer.current = setTimeout(() => setIsTravelling(false), 1400)
+  function open(index: number) {
+    setSelected(index)
+    dialog.current?.showModal()
   }
 
   return (
     <main className="collection-page">
-      <div className="ambient ambient-one" />
-      <div className="ambient ambient-two" />
-      <header className="project-intro">
-        <p className="project-label">AR archive / Art school</p>
-        <h1>The Collection</h1>
-        <p className="project-description">
-          Using AR to collate the creative fragments, stories, and unexpected connections, developed within an art school.
-        </p>
+      <header className="masthead">
+        <a className="wordmark" href="#collection" aria-label="The Collection home">THE COLLECTION<span aria-hidden="true">↗</span></a>
+        <span className="edition">An art school, collected.</span>
+        <a className="archive-link" href="#collection">Explore the archive <span aria-hidden="true">↓</span></a>
       </header>
-      <section className="collection-viewport" aria-label="The Collection">
-        <div
-          className={`collection-world${isTravelling ? ' is-travelling' : ''}`}
-          style={{
-            '--camera-x': `${focusedId ? -focus.x : 0}px`,
-            '--camera-y': `${focusedId ? -focus.y : 0}px`,
-          } as React.CSSProperties}
-        >
-          <svg className="connections" width="2100" height="1800" viewBox="-1050 -900 2100 1800" aria-hidden="true">
-            {positions.slice(0, -1).map((point, index) => {
-              const next = positions[index + 1]
-              const bend = (point.x + next.x) / 2
-              return (
-                <path
-                  key={`${point.x}-${point.y}`}
-                  d={`M ${point.x} ${point.y} C ${bend} ${point.y}, ${bend} ${next.y}, ${next.x} ${next.y}`}
-                />
-              )
-            })}
-          </svg>
 
-          {items.map((item, index) => {
-            const point = positions[index]
-            const focused = focusedId === item.id
-            return (
-              <article
-                key={item.id}
-                className={`fragment fragment-${palette[index % palette.length]}${focused ? ' is-focused' : ''}`}
-                style={{ '--card-x': `${point.x}px`, '--card-y': `${point.y}px` } as React.CSSProperties}
-                onMouseEnter={() => setHoveredId(item.id)}
-                onMouseLeave={() => setHoveredId(null)}
-              >
-                <div className="keyword-rail keyword-left" aria-label="Keywords">
-                  {item.keywords.filter((_, keywordIndex) => keywordIndex % 2 === 0).map((keyword) => (
-                    <span key={`${keyword}-left`}><i />{keyword}</span>
-                  ))}
-                </div>
-
-                <button
-                  className="image-card"
-                  type="button"
-                  onClick={() => focusCard(item.id)}
-                  aria-label={`Focus ${item.caption}`}
-                >
-                  <div className="image-frame">
-                    {/* URLs come from the collection's external storage provider. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.imageUrl}
-                      alt=""
-                      loading={focused ? 'eager' : 'lazy'}
-                      fetchPriority={focused ? 'high' : 'low'}
-                    />
-                  </div>
-                  {item.missionText && <p className="mission-label">{item.missionText}</p>}
-                  <h2>{item.caption}</h2>
-                </button>
-
-                <div className="keyword-rail keyword-right" aria-label="Keywords">
-                  {item.keywords.filter((_, keywordIndex) => keywordIndex % 2 === 1).map((keyword) => (
-                    <span key={`${keyword}-right`}><i />{keyword}</span>
-                  ))}
-                </div>
-                <span className={`focus-dot${hoveredId === item.id ? ' is-active' : ''}`} aria-hidden="true" />
-              </article>
-            )
-          })}
-        </div>
+      <section className="intro" aria-labelledby="title">
+        <div><p className="eyebrow">Everyday things. Other ways of seeing.</p><h1 id="title">Small fragments.<br /><span>New connections.</span></h1></div>
+        <p className="intro-copy">A growing collection of things noticed, traced and collected through AR. Creative fragments from an art school, seen through someone else’s eyes.</p>
       </section>
+
+      <section id="collection" className="archive" aria-labelledby="archive-title">
+        <div className="archive-heading"><h2 id="archive-title">The fragments <span className="count">{String(totalCount).padStart(2, '0')}</span></h2><p>Collected with Spectacles <span aria-hidden="true">↙</span></p></div>
+        {items.length === 0 ? <div className="empty-state"><h3>A collection starts with a little noticing.</h3><p>Fragments collected with Spectacles will appear here.</p></div> : (
+          <div className="fragment-grid">{items.map((item, index) => (
+            <button className="fragment-card" type="button" key={item.id} onClick={() => open(index)} aria-label={`Explore fragment ${index + 1}: ${item.caption}`}>
+              <div className="fragment-art"><span className="fragment-number">{String(index + 1).padStart(3, '0')}</span><FragmentImage item={item} eager={index < 4} /><span className="open-mark" aria-hidden="true">↗</span></div>
+              <div className="fragment-caption"><span className="mission">{item.missionText || 'An everyday discovery'}</span><h3>{item.caption}</h3><div className="keywords">{item.keywords.slice(0, 3).map((keyword, i) => <span key={`${keyword}-${i}`}>{keyword}</span>)}</div></div>
+            </button>
+          ))}</div>
+        )}
+      </section>
+      <footer><span>THE COLLECTION</span><p>Look closer. There’s more to connect.</p><span>Capture → Collect → Connect</span></footer>
+
+      <dialog ref={dialog} className="fragment-dialog" onClick={event => { if (event.target === event.currentTarget) dialog.current?.close() }} onKeyDown={event => { if (event.key === 'ArrowRight') setSelected(index => (index + 1) % items.length); if (event.key === 'ArrowLeft') setSelected(index => (index - 1 + items.length) % items.length) }} aria-labelledby="fragment-title">
+        {active && <><div className="dialog-top"><span>FRAGMENT / {String(selected + 1).padStart(3, '0')}</span><button className="close-button" onClick={() => dialog.current?.close()} aria-label="Close fragment" autoFocus>Close ×</button></div>
+          <div className="detail-layout"><div className="detail-art"><FragmentImage key={active.id} item={active} eager /></div><div className="detail-copy"><p className="eyebrow">The mission</p><p className="detail-mission">{active.missionText || 'Notice something around you.'}</p><p className="eyebrow">The discovery</p><h2 id="fragment-title">{active.caption}</h2><div className="keywords">{active.keywords.map((keyword, i) => <span key={`${keyword}-${i}`}>{keyword}</span>)}</div><p className="capture-date">Collected {new Date(active.createdAt).toLocaleDateString('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          {related.length > 0 && <div className="related"><h3>Another way to see it</h3>{related.map(({ item, index }) => <button key={item.id} onClick={() => setSelected(index)}>{item.missionText || item.keywords[0]}<span aria-hidden="true">↗</span></button>)}</div>}</div></div>
+          <div className="dialog-navigation"><button onClick={() => setSelected((selected - 1 + items.length) % items.length)}>← Previous</button><span>{selected + 1} / {items.length}</span><button onClick={() => setSelected((selected + 1) % items.length)}>Next →</button></div></>}
+      </dialog>
     </main>
   )
 }

@@ -50,14 +50,14 @@ export default async function Home() {
   if (error) {
     return (
       <main className="archive-page">
-        <h1>Supabase Error</h1>
-        <pre>{error.message}</pre>
+        <h1>The collection is temporarily unavailable.</h1>
+        <p>Please refresh in a moment to explore the fragments.</p><a href="/">Try again →</a>
       </main>
     )
   }
 
   const collectionItems = (items || []) as CollectionItem[]
-  const visibleItems = collectionItems.slice(0, 30)
+  const visibleItems = collectionItems
   const stageItems: StageItem[] = visibleItems.map((item, index) => {
     const ai = parseAI(item)
 
