@@ -1,5 +1,26 @@
 # v04 최종 통합 적용 — Lens Studio에서 마지막에 한 번만 진행
 
+## 지금 직접 할 일 — 이것부터
+
+1. Lens Studio에서 현재 v04 프로젝트를 닫고 `TheCollection_v04.esproj`를 다시 연다.
+2. `Assets/Basic/Scene 3.scene`을 열고 스크립트 컴파일이 끝날 때까지 기다린다.
+3. Preview를 재시작하고 `Show your mission`에서 카드를 맞춘 뒤 `Start`를 누른다.
+4. 종료되지 않고 미션 읽기 → 드로잉으로 넘어가는지 확인한다.
+   오류가 표시되면 Logger의 마지막 오류를 확인한다.
+
+**지금 새 컴포넌트를 붙이거나 Inspector 연결을 다시 할 필요는 없다.**
+아래 연결 목록은 누락된 참조가 있을 때 확인하는 용도다.
+Supabase 변경은 이미 완료했다. 캐시 삭제도 이번 오류의 수정 단계가 아니다.
+
+### Start 종료 수정 내역
+
+실제 2026-09-24 21:52 로그에서 `DynamicMesh Wrong parameters in eraseVertices`,
+`FragmentPngCapture.ts`의 `render` 호출을 확인했다.
+첫 캡처의 빈 MeshBuilder에 길이 0인 erase 호출이 들어가던 부분을 수정했다.
+수정 후 에디터/기기 재현 확인은 아직 필요하다.
+
+---
+
 2026-09-24 합의: 단계마다 Lens Studio를 수정하거나 기기 테스트하지 않는다.
 코드·서버·SQL·적용 항목을 먼저 준비하고, 3단계 이후 아래 체크리스트로 한 번에 적용한다.
 PHASE1_CAPTURE.md는 구현 기록이며, 그 문서의 기기 확인도 마지막으로 미룬다.
