@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: 'The Collection — A2 Poster' }
 
 export default async function Poster() {
   const { data, error } = await supabase.from('collection_items')
-    .select('id,image_url,description,mission_text').order('created_at', { ascending: false }).limit(36)
+    .select('id,image_url,description,mission_text').order('created_at', { ascending: false }).limit(25)
 
   if (error || !data?.length) return <main className="archive-page"><h1>Poster unavailable</h1><p>The latest fragments could not be loaded. Please refresh before printing.</p><a href="/poster">Try again</a></main>
 
@@ -18,7 +18,7 @@ export default async function Poster() {
   return <main className="poster-page">
     <PrintPoster />
     <article className="poster-sheet" aria-label="The Collection A2 portrait poster">
-      <header className="poster-heading"><h1>THE COLLECTION</h1><p>A participatory AR experience for collecting overlooked fragments and building a shared spatial archive.</p></header>
+      <header className="poster-heading"><h1>THE COLLECTION</h1><p className="poster-brandline">Find it. Trace it. Add it to the Collection.</p><p className="poster-summary">A participatory AR experience for collecting overlooked fragments and building a shared spatial archive.</p></header>
       <section className="poster-fragments" aria-label="Latest collected fragments">
         {data.map((item, index) => <figure key={item.id} className="poster-fragment" style={{ backgroundColor: colors[index] }}>
           <span className="poster-number">{String(index + 1).padStart(3, '0')}</span>
