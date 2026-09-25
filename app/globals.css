@@ -7,3 +7,26 @@
 @media(max-width:1000px){.fragment-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.edition{display:none}.intro-copy{max-width:240px}.intro{gap:24px}.detail-copy{padding:24px}}
 @media(max-width:700px){.collection-page{padding:0 20px}.masthead{min-height:76px;gap:15px}.wordmark{font-size:16px;gap:8px}.archive-link{font-size:12px;gap:8px}.wordmark span{width:28px;height:28px;font-size:23px}.intro{display:block;padding:34px 0 28px}h1{font-size:clamp(36px,8vw,56px)}.intro-copy{max-width:360px;margin-top:20px;font-size:16px}.eyebrow{font-size:12px;line-height:1.5}.fragment-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 14px}.fragment-caption h3{font-size:16px}.archive-heading p{font-size:12px;max-width:130px;text-align:right}.archive-heading p span{display:none}.fragment-number{left:10px;top:10px}.keywords span{font-size:12px;padding:4px 8px}.fragment-caption{padding-top:12px}footer{align-items:flex-start;flex-direction:column;gap:15px;margin-top:40px}.detail-layout{grid-template-columns:1fr}.detail-art{min-height:0;height:320px}.detail-art img{height:100%;min-height:0}.detail-mission{margin-bottom:28px}.dialog-top,.dialog-navigation{padding:12px}.fragment-dialog{width:94vw}.mission{font-size:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* A quiet header and a single, centered color card. */
+.masthead { min-height: 112px; }
+.masthead .wordmark { margin: 0; font-size: clamp(24px, 3vw, 40px); line-height: 1.1; letter-spacing: -.045em; }
+.archive { padding-top: 28px; }
+.fragment-number { font-size: 14px; font-weight: 800; }
+.open-mark { width: 28px; height: 28px; }
+.fragment-dialog { position: fixed; inset: 0; margin: auto; height: fit-content; max-height: calc(100svh - 48px); background: var(--yellow); }
+.fragment-dialog.is-blue { background: var(--blue); }
+.detail-art { background: transparent; }
+.detail-mission { background: transparent; padding: 0; font-size: clamp(28px, 3vw, 42px); font-weight: 800; letter-spacing: -.035em; }
+.detail-copy .eyebrow { font-weight: 400; }
+.detail-copy h2 { font-weight: 400; font-size: clamp(20px, 2vw, 28px); }
+.detail-copy .keywords span { font-weight: 800; border: 2px solid var(--ink); padding: 7px 12px; }
+.related h3 { font-weight: 400; }
+.related, .related button { border-color: rgba(23,32,36,.4); }
+.close-button:hover, .dialog-navigation button:hover, .related button:hover { background: rgba(255,255,255,.25); }
+@media (max-width:700px) {
+  .masthead { min-height: 88px; }
+  .archive { padding-top: 20px; }
+  .fragment-dialog { max-height: calc(100svh - 24px); }
+  .open-mark { width: 24px; height: 24px; }
+}

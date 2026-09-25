@@ -16,7 +16,7 @@ function FragmentImage({ item, eager = false }: { item: StageItem; eager?: boole
   )
 }
 
-export default function CollectionStage({ items, totalCount }: { items: StageItem[]; totalCount: number }) {
+export default function CollectionStage({ items }: { items: StageItem[]; totalCount: number }) {
   const [selected, setSelected] = useState(0)
   const dialog = useRef<HTMLDialogElement>(null)
   const active = items[selected]
@@ -30,22 +30,13 @@ export default function CollectionStage({ items, totalCount }: { items: StageIte
   return (
     <main className="collection-page">
       <header className="masthead">
-        <a className="wordmark" href="#collection" aria-label="The Collection home">THE COLLECTION<span aria-hidden="true">↗</span></a>
-        <span className="edition">An art school, collected.</span>
-        <a className="archive-link" href="#collection">Explore the archive <span aria-hidden="true">↓</span></a>
+        <h1 className="wordmark"><a href="#collection">THE COLLECTION</a></h1>
       </header>
-
-      <section className="intro" aria-labelledby="title">
-        <div><p className="eyebrow">Everyday things. Other ways of seeing.</p><h1 id="title">Small fragments.<br /><span>New connections.</span></h1></div>
-        <p className="intro-copy">A growing collection of things noticed, traced and collected through AR. Creative fragments from an art school, seen through someone else’s eyes.</p>
-      </section>
-
-      <section id="collection" className="archive" aria-labelledby="archive-title">
-        <div className="archive-heading"><h2 id="archive-title">The fragments <span className="count">{String(totalCount).padStart(2, '0')}</span></h2><p>Collected with Spectacles <span aria-hidden="true">↙</span></p></div>
+      <section id="collection" className="archive" aria-label="Collected fragments">
         {items.length === 0 ? <div className="empty-state"><h3>A collection starts with a little noticing.</h3><p>Fragments collected with Spectacles will appear here.</p></div> : (
           <div className="fragment-grid">{items.map((item, index) => (
             <button className="fragment-card" type="button" key={item.id} onClick={() => open(index)} aria-label={`Explore fragment ${index + 1}: ${item.caption}`}>
-              <div className="fragment-art"><span className="fragment-number">{String(index + 1).padStart(3, '0')}</span><FragmentImage item={item} eager={index < 4} /><span className="open-mark" aria-hidden="true">↗</span></div>
+              <div className="fragment-art"><span className="fragment-number">{String(index + 1).padStart(3, '0')}</span><FragmentImage item={item} eager={index < 4} /><svg className="open-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14" /></svg></div>
               <div className="fragment-caption"><span className="mission">{item.missionText || 'An everyday discovery'}</span><h3>{item.caption}</h3><div className="keywords">{item.keywords.slice(0, 3).map((keyword, i) => <span key={`${keyword}-${i}`}>{keyword}</span>)}</div></div>
             </button>
           ))}</div>
@@ -53,9 +44,9 @@ export default function CollectionStage({ items, totalCount }: { items: StageIte
       </section>
       <footer><span>THE COLLECTION</span><p>Look closer. There’s more to connect.</p><span>Capture → Collect → Connect</span></footer>
 
-      <dialog ref={dialog} className="fragment-dialog" onClick={event => { if (event.target === event.currentTarget) dialog.current?.close() }} onKeyDown={event => { if (event.key === 'ArrowRight') setSelected(index => (index + 1) % items.length); if (event.key === 'ArrowLeft') setSelected(index => (index - 1 + items.length) % items.length) }} aria-labelledby="fragment-title">
+      <dialog ref={dialog} className={`fragment-dialog${selected % 4 === 1 || selected % 4 === 2 ? ' is-blue' : ''}`} onClick={event => { if (event.target === event.currentTarget) dialog.current?.close() }} onKeyDown={event => { if (event.key === 'ArrowRight') setSelected(index => (index + 1) % items.length); if (event.key === 'ArrowLeft') setSelected(index => (index - 1 + items.length) % items.length) }} aria-labelledby="fragment-title">
         {active && <><div className="dialog-top"><span>FRAGMENT / {String(selected + 1).padStart(3, '0')}</span><button className="close-button" onClick={() => dialog.current?.close()} aria-label="Close fragment" autoFocus>Close ×</button></div>
-          <div className="detail-layout"><div className="detail-art"><FragmentImage key={active.id} item={active} eager /></div><div className="detail-copy"><p className="eyebrow">The mission</p><p className="detail-mission">{active.missionText || 'Notice something around you.'}</p><p className="eyebrow">The discovery</p><h2 id="fragment-title">{active.caption}</h2><div className="keywords">{active.keywords.map((keyword, i) => <span key={`${keyword}-${i}`}>{keyword}</span>)}</div><p className="capture-date">Collected {new Date(active.createdAt).toLocaleDateString('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          <div className="detail-layout"><div className="detail-art"><FragmentImage key={active.id} item={active} eager /></div><div className="detail-copy"><p className="eyebrow">Mission</p><p className="detail-mission">{active.missionText || 'Notice something around you.'}</p><p className="eyebrow">The discovery</p><h2 id="fragment-title">{active.caption}</h2><div className="keywords">{active.keywords.map((keyword, i) => <span key={`${keyword}-${i}`}>{keyword}</span>)}</div><p className="capture-date">Collected {new Date(active.createdAt).toLocaleDateString('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'long', year: 'numeric' })}</p>
           {related.length > 0 && <div className="related"><h3>Another way to see it</h3>{related.map(({ item, index }) => <button key={item.id} onClick={() => setSelected(index)}>{item.missionText || item.keywords[0]}<span aria-hidden="true">↗</span></button>)}</div>}</div></div>
           <div className="dialog-navigation"><button onClick={() => setSelected((selected - 1 + items.length) % items.length)}>← Previous</button><span>{selected + 1} / {items.length}</span><button onClick={() => setSelected((selected + 1) % items.length)}>Next →</button></div></>}
       </dialog>
